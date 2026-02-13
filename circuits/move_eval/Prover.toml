@@ -1,0 +1,16 @@
+# Safe move scenario: Player at 0, rolls 5, lands on 5 (no snake there)
+# Board: snakes at [50, 99, 98, 97, 96, 95, 94, 93, 92, 91]
+
+# Public inputs
+old_root = "0x26127f50e804adfcc9eed70c59b6a48f6c133cb99e7a727b1c15b2cfa4e18cec"
+new_root = "0x26127f50e804adfcc9eed70c59b6a48f6c133cb99e7a727b1c15b2cfa4e18cec"
+current_pos = 0
+roll = 5
+claimed_dest = 5
+is_snake_hit = false
+
+# Private inputs  
+board_config = [50, 99, 98, 97, 96, 95, 94, 93, 92, 91]
+board_salt = "123"
+new_snake_pos = 0
+new_salt = "0"

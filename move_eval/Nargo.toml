@@ -1,0 +1,6 @@
+[package]
+name = "move_eval"
+type = "bin"
+authors = [""]
+
+[dependencies]
