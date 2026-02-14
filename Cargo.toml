@@ -1,11 +1,13 @@
 [workspace]
 resolver = "2"
+exclude = ["temp_reference"]
 version = "0.1.2"
 members = [
   "contracts/mock-game-hub",
   "contracts/twenty-one",
   "contracts/number-guess",
   "contracts/dice-duel",
+  "contracts/snake-ladders",
 ]
 
 [workspace.dependencies]

@@ -153,8 +153,7 @@ fn test_valid_snake_hit() {
     // Move
     let current_pos = 5;
     let roll = 5;
-    let landing = 10;
-    let claimed_dest = 4; // Penalty
+    let claimed_dest = 4; // Penalty (snake at 10, sent back)
     let is_snake_hit = true;
     
     // Reshuffle: Move snake from 10 to 20
