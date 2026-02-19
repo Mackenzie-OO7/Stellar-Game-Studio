@@ -1,0 +1,1040 @@
+/* =======================================================================
+   SnakeLaddersGame.css — Jungle-themed Snake & Ladders
+   ======================================================================= */
+
+/* ---------------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------------- */
+
+.snl-game {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #e0e0e0;
+}
+
+.snl-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.snl-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+
+.snl-session {
+  font-size: 0.85rem;
+  color: #888;
+  margin-left: 0.5rem;
+  font-weight: 400;
+}
+
+.snl-turn-indicator {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  background: rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(46, 125, 50, 0.4);
+  color: #66bb6a;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   --------------------------------------------------------------------------- */
+
+.btn-back {
+  background: none;
+  border: 1px solid #555;
+  color: #bbb;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  border-color: #888;
+  color: #fff;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #555;
+  color: #ccc;
+  padding: 0.7rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   Banners
+   --------------------------------------------------------------------------- */
+
+.snl-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  animation: slideDown 0.3s ease;
+}
+
+.snl-error {
+  background: rgba(183, 28, 28, 0.2);
+  border: 1px solid rgba(183, 28, 28, 0.4);
+  color: #ef5350;
+}
+
+.snl-success {
+  background: rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(46, 125, 50, 0.4);
+  color: #66bb6a;
+}
+
+.snl-banner button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.3rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Phase 1: Create
+   --------------------------------------------------------------------------- */
+
+.snl-create {
+  display: flex;
+  justify-content: center;
+}
+
+.snl-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+}
+
+.snl-card h3 {
+  margin: 0 0 1.5rem;
+  font-size: 1.3rem;
+}
+
+.snl-field {
+  margin-bottom: 1.2rem;
+}
+
+.snl-field label {
+  display: block;
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.snl-field input[type="text"],
+.snl-field input[type="number"] {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.snl-field input:focus {
+  border-color: #2e7d32;
+}
+
+.snl-radio-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.snl-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.snl-radio.selected {
+  background: rgba(46, 125, 50, 0.2);
+  border-color: #2e7d32;
+  color: #66bb6a;
+}
+
+.snl-radio input {
+  display: none;
+}
+
+.snl-avatar-pick {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.avatar-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.avatar-btn.selected {
+  background: rgba(46, 125, 50, 0.2);
+  border-color: #2e7d32;
+  color: #66bb6a;
+}
+
+.snl-create-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Phase 2: Setup (Snake Placement)
+   --------------------------------------------------------------------------- */
+
+.snl-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.snake-placement {
+  max-width: 600px;
+  width: 100%;
+}
+
+.placement-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.placement-header h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.2rem;
+}
+
+.placement-counter {
+  font-size: 1rem;
+  color: #66bb6a;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+}
+
+.placement-hint {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0;
+}
+
+.placement-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  margin-bottom: 1rem;
+}
+
+.placement-tile {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: rgba(46, 125, 50, 0.1);
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.placement-tile:hover:not(:disabled) {
+  background: rgba(46, 125, 50, 0.25);
+  border-color: #2e7d32;
+}
+
+.tile-snake-head {
+  background: rgba(183, 28, 28, 0.3) !important;
+  border-color: #c62828 !important;
+  color: #ef5350;
+}
+
+.tile-snake-tail {
+  background: rgba(183, 28, 28, 0.15) !important;
+  border-color: #c62828 !important;
+  color: #e57373;
+}
+
+.tile-hover-head {
+  background: rgba(255, 193, 7, 0.2) !important;
+  border-color: #ffc107 !important;
+}
+
+.tile-hover-tail {
+  background: rgba(255, 193, 7, 0.1) !important;
+  border-color: #ffc107 !important;
+  border-style: dashed !important;
+}
+
+.tile-finish {
+  background: rgba(255, 215, 0, 0.15) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Invalid tiles just show a cursor, no visual change to avoid clutter ('white tiles') */
+.tile-invalid {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.tile-icon {
+  font-size: 0.9rem;
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+}
+
+.btn-commit {
+  width: 100%;
+  padding: 0.7rem;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-commit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.snl-waiting {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #888;
+}
+
+.snl-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #2e7d32;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 0.8rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Phase 3: Active Play
+   --------------------------------------------------------------------------- */
+
+.snl-active {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.snl-board-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.snl-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Board */
+.board-wrapper {
+  border: 3px solid #3e2723;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 60px rgba(0, 0, 0, 0.2);
+  background: #1a1a1a;
+}
+
+.board-grid {
+  background: linear-gradient(135deg, #2d4a1e 0%, #1a3a10 100%);
+}
+
+/* Tiles — jungle theme */
+.board-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  transition: background 0.2s;
+  box-sizing: border-box;
+}
+
+.tile-grass {
+  background: linear-gradient(145deg, #4a7c34 0%, #3d6b2a 100%);
+}
+
+.tile-grass-dark {
+  background: linear-gradient(145deg, #3d6b2a 0%, #2d5a1c 100%);
+}
+
+.tile-water {
+  background: linear-gradient(145deg, #1565c0 0%, #0d47a1 100%);
+}
+
+.tile-earth {
+  background: linear-gradient(145deg, #5d4037 0%, #4e342e 100%);
+}
+
+.tile-flower {
+  background: linear-gradient(145deg, #558b2f 0%, #43a047 100%);
+}
+
+.tile-home {
+  background: linear-gradient(145deg, #f9a825, #f57f17) !important;
+  border: 2px solid #ff8f00 !important;
+}
+
+.tile-highlight {
+  box-shadow: inset 0 0 15px rgba(255, 255, 0, 0.5);
+}
+
+.tile-number {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 2px;
+  left: 3px;
+}
+
+.tile-home-icon {
+  font-size: 1.2rem;
+}
+
+/* Snake animations */
+.snake-body {
+  animation: snakeIdle 4s ease-in-out infinite;
+}
+
+@keyframes snakeIdle {
+
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dashoffset: 4;
+  }
+}
+
+.snake-hit .snake-body {
+  animation: snakeStrike 0.4s ease-in-out;
+  stroke-width: 7;
+}
+
+@keyframes snakeStrike {
+  0% {
+    stroke-width: 5;
+  }
+
+  50% {
+    stroke-width: 9;
+  }
+
+  100% {
+    stroke-width: 5;
+  }
+}
+
+.snake-tongue {
+  animation: flickTongue 0.3s ease-in-out infinite;
+}
+
+@keyframes flickTongue {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scaleY(0.6);
+  }
+}
+
+/* Ladder group hover */
+.ladder-group {
+  opacity: 0.75;
+  transition: opacity 0.3s;
+}
+
+.ladder-group:hover {
+  opacity: 1;
+}
+
+/* Player tokens */
+.player-token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.token-emoji {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.token-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.player-1 .token-label {
+  color: #66bb6a;
+}
+
+.player-2 .token-label {
+  color: #42a5f5;
+}
+
+.token-hopping {
+  animation: hop 0.18s ease;
+}
+
+@keyframes hop {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Dice 3D
+   --------------------------------------------------------------------------- */
+
+.snl-dice-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* Dual dice layout */
+.dice3d-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dice3d-pair-cubes {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.dice3d-total {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #444;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.2rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dice3d-total strong {
+  font-size: 1.1rem;
+  color: #2e7d32;
+}
+
+.dice3d-container {
+  width: 70px;
+  height: 70px;
+  perspective: 400px;
+}
+
+.dice3d-cube {
+  width: 70px;
+  height: 70px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease-out;
+}
+
+.dice3d-face {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #fafafa, #e0e0e0);
+  border: 2px solid #bbb;
+  border-radius: 12px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.08);
+}
+
+.dice3d-face-1 {
+  transform: translateZ(35px);
+}
+
+.dice3d-face-2 {
+  transform: rotateY(90deg) translateZ(35px);
+}
+
+.dice3d-face-3 {
+  transform: rotateX(-90deg) translateZ(35px);
+}
+
+.dice3d-face-4 {
+  transform: rotateX(90deg) translateZ(35px);
+}
+
+.dice3d-face-5 {
+  transform: rotateY(-90deg) translateZ(35px);
+}
+
+.dice3d-face-6 {
+  transform: rotateY(180deg) translateZ(35px);
+}
+
+.dice3d-pip {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #333;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dice-rolling {
+  animation: diceRoll 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@keyframes diceRoll {
+  0% {
+    transform: rotateX(0) rotateY(0) rotateZ(0);
+  }
+
+  25% {
+    transform: rotateX(270deg) rotateY(180deg) rotateZ(90deg);
+  }
+
+  50% {
+    transform: rotateX(540deg) rotateY(360deg) rotateZ(180deg);
+  }
+
+  75% {
+    transform: rotateX(810deg) rotateY(540deg) rotateZ(270deg);
+  }
+
+  100% {
+    transform: rotateX(1080deg) rotateY(720deg) rotateZ(360deg);
+  }
+}
+
+.dice-landing {
+  animation: diceBounce 0.4s ease;
+}
+
+@keyframes diceBounce {
+  0% {
+    transform: scale(1.1);
+  }
+
+  50% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-roll {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 0.8rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Scoreboard
+   --------------------------------------------------------------------------- */
+
+.snl-scoreboard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+
+.score-row+.score-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.score-row.you {
+  color: #66bb6a;
+}
+
+.score-avatar {
+  font-size: 1.1rem;
+}
+
+.score-label {
+  font-weight: 600;
+  min-width: 24px;
+}
+
+.score-pos {
+  color: #aaa;
+  margin-left: auto;
+  font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Proof Panel
+   --------------------------------------------------------------------------- */
+
+.btn-proof-toggle {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #888;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.btn-proof-toggle:hover {
+  border-color: #555;
+  color: #bbb;
+}
+
+.snl-proof-panel {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.8rem;
+  font-size: 0.8rem;
+}
+
+.snl-proof-panel h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.proof-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.proof-label {
+  color: #888;
+}
+
+.proof-hash {
+  font-family: monospace;
+  color: #66bb6a;
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.proof-status {
+  color: #66bb6a;
+  font-weight: 600;
+}
+
+.proof-empty {
+  color: #666;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Phase 4: Complete
+   --------------------------------------------------------------------------- */
+
+.snl-complete {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.snl-winner-banner {
+  margin-bottom: 2rem;
+  animation: bannerPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.snl-winner-banner h2 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #ffd54f, #ffab00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.winner-address {
+  color: #888;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+@keyframes bannerPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.snl-stats {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto 2rem;
+}
+
+.snl-stats h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  color: #999;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #66bb6a;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.snl-complete-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Confetti
+   --------------------------------------------------------------------------- */
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.confetti-container::before,
+.confetti-container::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+}
+
+/* Generate confetti particles via box-shadow */
+.confetti-container::before {
+  animation: confettiFall 3s ease-in forwards;
+  box-shadow:
+    10vw 0 #f44336, 20vw 0 #e91e63, 30vw 0 #9c27b0,
+    40vw 0 #673ab7, 50vw 0 #3f51b5, 60vw 0 #2196f3,
+    70vw 0 #00bcd4, 80vw 0 #4caf50, 90vw 0 #ffeb3b,
+    15vw 0 #ff9800, 25vw 0 #ff5722, 35vw 0 #795548,
+    45vw 0 #607d8b, 55vw 0 #f44336, 65vw 0 #e91e63,
+    75vw 0 #9c27b0, 85vw 0 #673ab7, 95vw 0 #3f51b5,
+    5vw 0 #2196f3, 12vw 0 #00bcd4, 22vw 0 #4caf50,
+    32vw 0 #ffeb3b, 42vw 0 #ff9800, 52vw 0 #ff5722;
+}
+
+.confetti-container::after {
+  animation: confettiFall 3.5s 0.2s ease-in forwards;
+  box-shadow:
+    8vw 0 #e91e63, 18vw 0 #9c27b0, 28vw 0 #673ab7,
+    38vw 0 #3f51b5, 48vw 0 #2196f3, 58vw 0 #00bcd4,
+    68vw 0 #4caf50, 78vw 0 #ffeb3b, 88vw 0 #ff9800,
+    13vw 0 #ff5722, 23vw 0 #795548, 33vw 0 #607d8b,
+    43vw 0 #f44336, 53vw 0 #e91e63, 63vw 0 #9c27b0,
+    73vw 0 #673ab7, 83vw 0 #3f51b5, 93vw 0 #2196f3;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotateZ(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotateZ(720deg);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive (landscape-first)
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 800px) {
+  .snl-active {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .snl-sidebar {
+    width: 100%;
+    max-width: 400px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .snl-dice-section {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .snl-scoreboard {
+    flex: 1;
+    min-width: 150px;
+  }
+}

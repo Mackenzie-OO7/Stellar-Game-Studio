@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TwentyOneGame } from '../games/twenty-one/TwentyOneGame';
 import { NumberGuessGame } from '../games/number-guess/NumberGuessGame';
 import { DiceDuelGame } from '../games/dice-duel/DiceDuelGame';
+import { SnakeLaddersGame } from '../games/snake-ladders/SnakeLaddersGame';
 import { useWallet } from '@/hooks/useWallet';
 import typezeroHero from '../assets/typezero-hero.png';
 import xrayHero from '../assets/xray-hero.png';
@@ -28,6 +29,13 @@ const games = [
     emoji: '🎲',
     description: 'Roll two dice each and race for the highest total.',
     tags: ['2 players', 'Quick launch'],
+  },
+  {
+    id: 'snake-ladders',
+    title: 'Snake & Ladders',
+    emoji: '🐍',
+    description: 'Place hidden traps and race to 100 with ZK-verified moves.',
+    tags: ['2 players', 'ZK Proofs', 'Strategy'],
   },
 ];
 
@@ -78,6 +86,19 @@ export function GamesCatalog({ onBack }: GamesCatalogProps) {
   if (selectedGame === 'dice-duel') {
     return (
       <DiceDuelGame
+        userAddress={userAddress}
+        currentEpoch={1}
+        availablePoints={1000000000n}
+        onBack={handleBackToLibrary}
+        onStandingsRefresh={() => console.log('Refresh standings')}
+        onGameComplete={() => console.log('Game complete')}
+      />
+    );
+  }
+
+  if (selectedGame === 'snake-ladders') {
+    return (
+      <SnakeLaddersGame
         userAddress={userAddress}
         currentEpoch={1}
         availablePoints={1000000000n}
