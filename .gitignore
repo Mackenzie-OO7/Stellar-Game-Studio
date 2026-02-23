@@ -39,3 +39,15 @@ frontend-template/*.tsbuildinfo
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary and Reference
+_sgs_temp/
+temp_reference/
+stellar-dev-skill/
+
+# Logs
+*.log
+
+# Generated artifacts
+contracts/snake-ladders/WALKTHROUGH.html
+contracts/snake-ladders/WALKTHROUGH.md
