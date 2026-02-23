@@ -49,8 +49,8 @@ Usage: bun run deploy [contract-name...]
 
 Examples:
   bun run deploy
-  bun run deploy number-guess
-  bun run deploy twenty-one number-guess
+  bun run deploy snake-ladders
+  bun run deploy mock-game-hub snake-ladders
 `);
 }
 
@@ -177,8 +177,6 @@ if (existsSync("deployment.json")) {
     } else {
       // Backwards compatible fallback
       if (existingDeployment?.mockGameHubId) existingContractIds["mock-game-hub"] = existingDeployment.mockGameHubId;
-      if (existingDeployment?.twentyOneId) existingContractIds["twenty-one"] = existingDeployment.twentyOneId;
-      if (existingDeployment?.numberGuessId) existingContractIds["number-guess"] = existingDeployment.numberGuessId;
     }
   } catch (error) {
     console.warn("⚠️  Warning: Failed to parse deployment.json, continuing...");
@@ -210,7 +208,7 @@ try {
 for (const identity of ['player1', 'player2']) {
   console.log(`Setting up ${identity}...`);
 
-  let keypair: Keypair;
+  let keypair: StellarKeypair;
   if (existingSecrets[identity]) {
     console.log(`✅ Using existing ${identity} from .env`);
     keypair = Keypair.fromSecret(existingSecrets[identity]!);
@@ -300,8 +298,26 @@ for (const contract of contracts) {
     console.log(`  WASM hash: ${wasmHash}`);
 
     console.log("  Deploying and initializing...");
-    const deployResult =
-      await $`stellar contract deploy --wasm-hash ${wasmHash} --source-account ${adminSecret} --network ${NETWORK} -- --admin ${adminAddress} --game-hub ${mockGameHubId}`.text();
+    let deployCmd = `stellar contract deploy --wasm-hash ${wasmHash} --source-account ${adminSecret} --network ${NETWORK}`;
+
+    // Add initialization arguments based on contract
+    if (contract.packageName === "zk-verifier") {
+      const vkPath = join(process.cwd(), "contracts", "snake-ladders", "test_artifacts", "vk");
+      if (!existsSync(vkPath)) {
+        throw new Error(`Verification key not found at ${vkPath}`);
+      }
+      const vkBytes = await Bun.file(vkPath).arrayBuffer();
+      const vkHex = Buffer.from(vkBytes).toString('hex');
+      deployCmd += ` -- --admin ${adminAddress} --vk_bytes ${vkHex}`;
+    } else if (contract.packageName === "snake-ladders") {
+      const verifierId = deployed["zk-verifier"];
+      if (!verifierId) {
+        throw new Error("zk-verifier must be deployed before snake-ladders");
+      }
+      deployCmd += ` -- --admin ${adminAddress} --game-hub ${mockGameHubId} --verifier ${verifierId}`;
+    }
+
+    const deployResult = await $`${{ raw: deployCmd }}`.text();
     const contractId = deployResult.trim();
     deployed[contract.packageName] = contractId;
     console.log(`✅ ${contract.packageName} deployed: ${contractId}\n`);
@@ -322,9 +338,6 @@ for (const contract of allContracts) {
   if (id) console.log(`  ${contract.packageName}: ${id}`);
 }
 
-const twentyOneId = deployed["twenty-one"] || "";
-const numberGuessId = deployed["number-guess"] || "";
-
 const deploymentContracts = allContracts.reduce<Record<string, string>>((acc, contract) => {
   acc[contract.packageName] = deployed[contract.packageName] || "";
   return acc;
@@ -332,8 +345,6 @@ const deploymentContracts = allContracts.reduce<Record<string, string>>((acc, co
 
 const deploymentInfo = {
   mockGameHubId,
-  twentyOneId,
-  numberGuessId,
   contracts: deploymentContracts,
   network: NETWORK,
   rpcUrl: RPC_URL,

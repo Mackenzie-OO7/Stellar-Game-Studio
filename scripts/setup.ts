@@ -87,8 +87,7 @@ if (existsSync('deployment.json')) {
   } else {
     // Backwards compatible fallback
     if (deploymentInfo?.mockGameHubId) contractIds["mock-game-hub"] = deploymentInfo.mockGameHubId;
-    if (deploymentInfo?.twentyOneId) contractIds["twenty-one"] = deploymentInfo.twentyOneId;
-    if (deploymentInfo?.numberGuessId) contractIds["number-guess"] = deploymentInfo.numberGuessId;
+
   }
   rpcUrl = deploymentInfo?.rpcUrl || rpcUrl;
   networkPassphrase = deploymentInfo?.networkPassphrase || networkPassphrase;

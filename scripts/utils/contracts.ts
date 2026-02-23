@@ -69,8 +69,17 @@ export async function getWorkspaceContracts(): Promise<ContractInfo[]> {
   }
 
   infos.sort((a, b) => {
+    // 1. Mock hub always first
     if (a.isMockHub && !b.isMockHub) return -1;
     if (!a.isMockHub && b.isMockHub) return 1;
+
+    // 2. Verifier next (snake-ladders depends on it)
+    const isAVerifier = a.packageName === "zk-verifier";
+    const isBVerifier = b.packageName === "zk-verifier";
+    if (isAVerifier && !isBVerifier) return -1;
+    if (!isAVerifier && isBVerifier) return 1;
+
+    // 3. Alphabetical fallback
     return a.packageName.localeCompare(b.packageName);
   });
 

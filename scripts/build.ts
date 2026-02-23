@@ -16,8 +16,8 @@ Usage: bun run build [contract-name...]
 
 Examples:
   bun run build
-  bun run build number-guess
-  bun run build twenty-one number-guess
+  bun run build snake-ladders
+  bun run build mock-game-hub snake-ladders
 `);
 }
 

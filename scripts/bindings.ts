@@ -17,8 +17,8 @@ Usage: bun run bindings [contract-name...]
 
 Examples:
   bun run bindings
-  bun run bindings number-guess
-  bun run bindings twenty-one number-guess
+  bun run bindings snake-ladders
+  bun run bindings mock-game-hub snake-ladders
 `);
 }
 
@@ -58,8 +58,7 @@ if (existsSync("deployment.json")) {
   } else {
     // Backwards compatible fallback
     if (deploymentInfo?.mockGameHubId) contractIds["mock-game-hub"] = deploymentInfo.mockGameHubId;
-    if (deploymentInfo?.twentyOneId) contractIds["twenty-one"] = deploymentInfo.twentyOneId;
-    if (deploymentInfo?.numberGuessId) contractIds["number-guess"] = deploymentInfo.numberGuessId;
+
   }
 } else {
   const env = await readEnvFile('.env');
