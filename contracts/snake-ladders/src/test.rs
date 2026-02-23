@@ -1,4 +1,4 @@
-#![cfg(test)]
+
 
 //! Game flow unit tests.
 //!
@@ -12,28 +12,10 @@ use soroban_sdk::{
 
 use crate::{GameStatus, SnakeLaddersContract, SnakeLaddersContractClient};
 
-// Mock GameHub (accepts all start_game/end_game calls)
-
-#[contract]
-pub struct MockGameHub;
-
-#[contractimpl]
-impl MockGameHub {
-    pub fn start_game(
-        _env: Env,
-        _game_id: Address,
-        _session_id: u32,
-        _player1: Address,
-        _player2: Address,
-        _player1_points: i128,
-        _player2_points: i128,
-    ) {
-        // No-op: just accept the call
-    }
-
-    pub fn end_game(_env: Env, _session_id: u32, _player1_won: bool) {
-        // No-op: just accept the call
-    }
+mod game_hub {
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/mock_game_hub.wasm"
+    );
 }
 
 // Mock Verifier (accepts all proofs for game flow testing only)
@@ -70,7 +52,7 @@ fn setup() -> TestEnv<'static> {
     let player2 = Address::generate(&env);
 
     // Deploy mocks
-    let hub_id = env.register(MockGameHub, ());
+    let hub_id = env.register(game_hub::WASM, ());
     let verifier_id = env.register(MockVerifier, ());
 
     // Deploy game contract
@@ -134,7 +116,7 @@ fn test_roll_dice() {
     t.client.setup_board(&1u32, &t.player2, &hash2);
 
     let roll = t.client.roll_dice(&1u32);
-    assert!(roll >= 1 && roll <= 6);
+    assert!((1..=6).contains(&roll));
 
     // Verify pending roll is set
     let game = t.client.get_game(&1u32);
@@ -170,7 +152,7 @@ fn test_full_game_safe_move() {
 
     let game = t.client.get_game(&1u32);
     assert_eq!(game.p1_position, roll);
-    assert_eq!(game.p1_turn, false); // P2's turn
+    assert!(!game.p1_turn); // P2's turn
     assert!(game.pending_roll.is_none());
 }
 
@@ -205,7 +187,7 @@ fn test_full_game_snake_hit() {
     let game = t.client.get_game(&1u32);
     assert_eq!(game.p1_position, 2);
     assert_eq!(game.p2_board_hash, new_hash); // Board was updated
-    assert_eq!(game.p1_turn, false);
+    assert!(!game.p1_turn);
 }
 
 #[test]

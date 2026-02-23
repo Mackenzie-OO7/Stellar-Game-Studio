@@ -1,10 +1,10 @@
-#![cfg(test)]
+
 
 //! Integration test: UltraHonk verifier + VK + proof
 //! Proves the full ZK pipeline works end-to-end within the game contract.
 
 use soroban_sdk::{
-    contract, contractimpl, testutils::Address as _, Address, Bytes, BytesN, Env,
+    testutils::Address as _, Address, Bytes, BytesN, Env,
 };
 
 use crate::{GameStatus, SnakeLaddersContract, SnakeLaddersContractClient};
@@ -15,24 +15,10 @@ mod ultrahonk_verifier {
     );
 }
 
-// Mock GameHub (game logic, not ZK)
-
-#[contract]
-pub struct MockGameHub;
-
-#[contractimpl]
-impl MockGameHub {
-    pub fn start_game(
-        _env: Env,
-        _game_id: Address,
-        _session_id: u32,
-        _player1: Address,
-        _player2: Address,
-        _player1_points: i128,
-        _player2_points: i128,
-    ) {
-    }
-    pub fn end_game(_env: Env, _session_id: u32, _player1_won: bool) {}
+mod game_hub {
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/mock_game_hub.wasm"
+    );
 }
 
 // VK + Proof artifacts from circuit build
@@ -59,8 +45,8 @@ fn test_verifier_proof_accepted() {
     let vk = Bytes::from_slice(&env, VK_BYTES);
     let verifier_id = env.register(ultrahonk_verifier::WASM, (vk,));
 
-    // Deploy mock GameHub
-    let hub_id = env.register(MockGameHub, ());
+    // Deploy mock GameHub WASM
+    let hub_id = env.register(game_hub::WASM, ());
 
     // Deploy game contract with verifier
     let contract_id = env.register(
@@ -82,7 +68,7 @@ fn test_verifier_proof_accepted() {
 
     // P1 rolls
     let roll = client.roll_dice(&1u32);
-    assert!(roll >= 1 && roll <= 6);
+    assert!((1..=6).contains(&roll));
 
     // P2 (dealer) submits outcome with proof and public inputs
     let proof = Bytes::from_slice(&env, PROOF_BYTES);
@@ -100,7 +86,7 @@ fn test_verifier_proof_accepted() {
     // Verify the game state updated correctly
     let game = client.get_game(&1u32);
     assert_eq!(game.p1_position, roll);
-    assert_eq!(game.p1_turn, false); // Turn advanced to P2
+    assert!(!game.p1_turn); // Turn advanced to P2
     assert_eq!(game.status, GameStatus::Active);
 }
 
@@ -119,7 +105,7 @@ fn test_verifier_rejects_bad_proof() {
     // Deploy verifier
     let vk = Bytes::from_slice(&env, VK_BYTES);
     let verifier_id = env.register(ultrahonk_verifier::WASM, (vk,));
-    let hub_id = env.register(MockGameHub, ());
+    let hub_id = env.register(game_hub::WASM, ());
 
     let contract_id = env.register(
         SnakeLaddersContract,
