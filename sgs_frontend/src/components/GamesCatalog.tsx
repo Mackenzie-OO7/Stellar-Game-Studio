@@ -32,9 +32,9 @@ const games = [
   },
   {
     id: 'snake-ladders',
-    title: 'Snake & Ladders',
+    title: 'Serpent\'s Gambit',
     emoji: '🐍',
-    description: 'Place hidden traps and race to 100 with ZK-verified moves.',
+    description: 'Place hidden snakes for your opponent and race to 100.',
     tags: ['2 players', 'ZK Proofs', 'Strategy'],
   },
 ];

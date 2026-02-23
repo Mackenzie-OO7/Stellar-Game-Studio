@@ -679,7 +679,7 @@ export function SnakeLaddersGame({
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-3xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                        Snake & Ladders 🐍
+                        Serpent's Gambit 🐍
                     </h2>
                     <p className="text-sm text-gray-700 font-semibold mt-1">
                         Place hidden traps, roll dice, and race to 100!
