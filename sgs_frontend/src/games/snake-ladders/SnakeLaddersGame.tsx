@@ -25,6 +25,8 @@ import {
     type SnakeDef,
 } from './snakeLaddersService';
 import { useWallet } from '@/hooks/useWallet';
+import { getLocationSearch } from '@/utils/location';
+import { getFundedSimulationSourceAddress } from '@/utils/simulationUtils';
 import { devWalletService, DevWalletService } from '@/services/devWalletService';
 import type { GameState } from './bindings';
 import './SnakeLaddersGame.css';
@@ -53,6 +55,7 @@ interface SnakeLaddersGameProps {
     onBack: () => void;
     onStandingsRefresh: () => void;
     onGameComplete: () => void;
+    onQuickstartChange?: (active: boolean, player: 1 | 2) => void;
 }
 
 // Types
@@ -83,21 +86,36 @@ export function SnakeLaddersGame({
     onBack,
     onStandingsRefresh,
     onGameComplete,
+    onQuickstartChange,
 }: SnakeLaddersGameProps) {
-    const { walletType } = useWallet();
+    const { getContractSigner, walletType } = useWallet();
 
     // --- Create Phase ---
     const [sessionId, setSessionId] = useState(() => createRandomSessionId());
     const [player1Address, setPlayer1Address] = useState(userAddress);
     const [player1Points, setPlayer1Points] = useState(DEFAULT_POINTS);
+    
+    // Import/Load mode
     const [createMode, setCreateMode] = useState<CreateMode>('create');
     const [gameMode, setGameMode] = useState<GameMode>('computer');
     const [snakeCountOption, setSnakeCountOption] = useState<6 | 8 | 10>(6);
     const [p1Avatar, setP1Avatar] = useState<Avatar>('mongoose');
     const [p2Avatar, setP2Avatar] = useState<Avatar>('mouse');
 
-    // Import/Load mode
+    const [exportedAuthEntryXDR, setExportedAuthEntryXDR] = useState<string | null>(null);
+    const [importAuthEntryXDR, setImportAuthEntryXDR] = useState('');
+    const [importSessionId, setImportSessionId] = useState('');
+    const [importPlayer1, setImportPlayer1] = useState('');
+    const [importPlayer1Points, setImportPlayer1Points] = useState('');
+    const [importPlayer2Points, setImportPlayer2Points] = useState(DEFAULT_POINTS);
     const [loadSessionId, setLoadSessionId] = useState('');
+    const [shareUrlCopied, setShareUrlCopied] = useState(false);
+    const [xdrParsing, setXdrParsing] = useState(false);
+    const [xdrParseError, setXdrParseError] = useState<string | null>(null);
+    const [xdrParseSuccess, setXdrParseSuccess] = useState(false);
+    const [isPrepared, setIsPrepared] = useState(false);
+    const [mockAuthEntry, setMockAuthEntry] = useState('');
+
 
     // --- Game State ---
     const [phase, setPhase] = useState<GamePhase>('create');
@@ -138,14 +156,103 @@ export function SnakeLaddersGame({
         && DevWalletService.isPlayerAvailable(1)
         && DevWalletService.isPlayerAvailable(2);
 
+    
+
+    
     // Keep player1Address in sync with wallet
     useEffect(() => {
         setPlayer1Address(userAddress);
     }, [userAddress]);
 
-    // Use isPrepared to show logic
-    const [isPrepared, setIsPrepared] = useState(false);
-    const [mockAuthEntry, setMockAuthEntry] = useState('');
+    useEffect(() => {
+        if (createMode === 'import' && !importPlayer2Points.trim()) {
+            setImportPlayer2Points(DEFAULT_POINTS);
+        }
+    }, [createMode, importPlayer2Points]);
+
+    // Handle initial values from URL deep linking or props
+    useEffect(() => {
+        const urlParams = new URLSearchParams(getLocationSearch());
+        const authEntry = urlParams.get('auth');
+        const urlSessionId = urlParams.get('session-id');
+
+        if (authEntry) {
+            try {
+                const parsed = service.parseAuthEntry(authEntry);
+                const extractedSessionId = parsed.sessionId;
+                
+                service.getGame(extractedSessionId)
+                    .then((game) => {
+                        if (game) {
+                            setGameState(game);
+                            setPhase('active');
+                            setSessionId(extractedSessionId);
+                        } else {
+                            setCreateMode('import');
+                            setImportAuthEntryXDR(authEntry);
+                            setImportSessionId(extractedSessionId.toString());
+                            setImportPlayer1(parsed.player1);
+                            setImportPlayer1Points((Number(parsed.player1Points) / 10_000_000).toString());
+                            setImportPlayer2Points('0.1');
+                        }
+                    })
+                    .catch(() => {
+                        setCreateMode('import');
+                        setImportAuthEntryXDR(authEntry);
+                        setImportPlayer2Points('0.1');
+                    });
+            } catch (err) {
+                setCreateMode('import');
+                setImportAuthEntryXDR(authEntry);
+                setImportPlayer2Points('0.1');
+            }
+        } else if (urlSessionId) {
+            setCreateMode('load');
+            setLoadSessionId(urlSessionId);
+        }
+    }, []);
+
+    // Auto-parse Auth Entry XDR when pasted
+    useEffect(() => {
+        if (createMode !== 'import' || !importAuthEntryXDR.trim()) {
+            if (!importAuthEntryXDR.trim()) {
+                setXdrParsing(false);
+                setXdrParseError(null);
+                setXdrParseSuccess(false);
+                setImportSessionId('');
+                setImportPlayer1('');
+                setImportPlayer1Points('');
+            }
+            return;
+        }
+
+        const parseXDR = async () => {
+            setXdrParsing(true);
+            setXdrParseError(null);
+            setXdrParseSuccess(false);
+
+            try {
+                const gameParams = service.parseAuthEntry(importAuthEntryXDR.trim());
+                if (gameParams.player1 === userAddress) {
+                    throw new Error('You cannot play against yourself.');
+                }
+                setImportSessionId(gameParams.sessionId.toString());
+                setImportPlayer1(gameParams.player1);
+                setImportPlayer1Points((Number(gameParams.player1Points) / 10_000_000).toString());
+                setXdrParseSuccess(true);
+            } catch (err) {
+                setXdrParseError(err instanceof Error ? err.message : 'Invalid auth entry XDR');
+                setImportSessionId('');
+                setImportPlayer1('');
+                setImportPlayer1Points('');
+            } finally {
+                setXdrParsing(false);
+            }
+        };
+
+        const timeoutId = setTimeout(parseXDR, 500);
+        return () => clearTimeout(timeoutId);
+    }, [importAuthEntryXDR, createMode, userAddress]);
 
     // Derived
     const isP1Turn = gameState?.p1_turn ?? true;
@@ -211,7 +318,7 @@ export function SnakeLaddersGame({
     // --- Computer auto-play: trigger when it's opponent's turn in vs Computer mode ---
     useEffect(() => {
         if (phase !== 'active' || !gameState || gameMode !== 'computer') return;
-        if (gameState.status === 'Finished') return;
+        if (gameState.status?.tag === 'Finished') return;
 
         const isComputerTurn = !isP1Turn !== !amPlayer1; // XOR: computer plays when it's NOT player's turn
         if (!isComputerTurn || rolling) return;
@@ -275,7 +382,7 @@ export function SnakeLaddersGame({
                 const updated = await service.getGame(sessionId);
                 setGameState(updated);
 
-                if (updated?.status === 'Finished') {
+                if (updated?.status?.tag === 'Finished') {
                     setPhase('complete');
                     setShowConfetti(true);
                     onGameComplete();
@@ -301,69 +408,127 @@ export function SnakeLaddersGame({
 
     // ----- Handlers -----
 
-    /** Quickstart — creates and signs for both dev wallets in one click */
+    /** Prepare transaction and export signed auth entry for Player 2 */
+    const handleImportTransaction = async () => {
+        await runAction(async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                setSuccess(null);
+                
+                if (!importAuthEntryXDR.trim()) throw new Error('Enter auth entry XDR');
+                if (!importPlayer2Points.trim()) throw new Error('Enter your points');
+
+                const p2Points = parsePoints(importPlayer2Points);
+                if (!p2Points || p2Points <= 0n) throw new Error('Invalid P2 points');
+
+                const gameParams = service.parseAuthEntry(importAuthEntryXDR.trim());
+                if (gameParams.player1 === userAddress) throw new Error('Cannot play against yourself');
+
+                const signer = getContractSigner();
+                const fullySignedTxXDR = await service.importAndSignAuthEntry(
+                    importAuthEntryXDR.trim(),
+                    userAddress,
+                    p2Points,
+                    snakeCountOption,
+                    signer
+                );
+
+                await service.finalizeStartGame(fullySignedTxXDR, userAddress, signer);
+
+                const game = await service.getGame(gameParams.sessionId);
+                setGameState(game);
+                
+                setPhase('setup');
+                setSessionId(gameParams.sessionId);
+                setSuccess('Import successful! Proceeding to setup.');
+                setTimeout(() => setSuccess(null), 2000);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Import failed');
+            } finally {
+                setLoading(false);
+            }
+        });
+    };
     const handleQuickStart = async () => {
         await runAction(async () => {
             try {
                 setQuickstartLoading(true);
                 setError(null);
                 setSuccess(null);
-
-                if (walletType !== 'dev') {
-                    throw new Error('Quickstart only works with dev wallets in the Games Library.');
-                }
-
+                
+                if (walletType !== 'dev') throw new Error('Requires dev wallet');
                 if (!DevWalletService.isDevModeAvailable() || !DevWalletService.isPlayerAvailable(1) || !DevWalletService.isPlayerAvailable(2)) {
-                    throw new Error('Quickstart requires both dev wallets. Run "bun run setup" and connect a dev wallet.');
+                    throw new Error('Requires both dev wallets');
                 }
 
                 const p1Points = parsePoints(player1Points);
-                if (!p1Points || p1Points <= 0n) {
-                    throw new Error('Enter a valid points amount');
-                }
+                if (!p1Points || p1Points <= 0n) throw new Error('Invalid points');
 
                 const originalPlayer = devWalletService.getCurrentPlayer();
                 let p1Addr = '';
                 let p2Addr = '';
+                let p1Signer = null;
+                let p2Signer = null;
 
                 try {
                     await devWalletService.initPlayer(1);
                     p1Addr = devWalletService.getPublicKey();
+                    p1Signer = devWalletService.getSigner();
 
                     await devWalletService.initPlayer(2);
                     p2Addr = devWalletService.getPublicKey();
+                    p2Signer = devWalletService.getSigner();
                 } finally {
-                    if (originalPlayer) {
-                        await devWalletService.initPlayer(originalPlayer);
-                    }
+                    if (originalPlayer) await devWalletService.initPlayer(originalPlayer);
                 }
 
-                if (p1Addr === p2Addr) {
-                    throw new Error('Quickstart requires two different dev wallets.');
-                }
+                if (!p1Signer || !p2Signer) throw new Error('Failed to init dev signers');
+                if (p1Addr === p2Addr) throw new Error('Requires different wallets');
 
                 const qsSessionId = createRandomSessionId();
                 setSessionId(qsSessionId);
                 setPlayer1Address(p1Addr);
+                
+                const placeholderPlayer2Address = await getFundedSimulationSourceAddress([p1Addr, p2Addr]);
 
-                // Create game in mock engine
-                await service.createGame(qsSessionId, p1Addr, p2Addr, p1Points, p1Points, snakeCountOption);
+                const authEntryXDR = await service.prepareStartGame(
+                    qsSessionId,
+                    p1Addr,
+                    placeholderPlayer2Address,
+                    p1Points,
+                    p1Points,
+                    snakeCountOption,
+                    p1Signer
+                );
 
-                const game = await service.getGame(qsSessionId);
-                setGameState(game);
+                const fullySignedTxXDR = await service.importAndSignAuthEntry(
+                    authEntryXDR,
+                    p2Addr,
+                    p1Points,
+                    snakeCountOption,
+                    p2Signer
+                );
+
+                await service.finalizeStartGame(fullySignedTxXDR, p2Addr, p2Signer);
+
+                try {
+                    const game = await service.getGame(qsSessionId);
+                    setGameState(game);
+                } catch (err) {}
+                
                 setPhase('setup');
-
                 onStandingsRefresh();
-                setSuccess('Quickstart complete! Place your snakes.');
-                setTimeout(() => setSuccess(null), 3000);
+                setSuccess('Quickstart complete! Proceeding to setup.');
+                setTimeout(() => setSuccess(null), 2000);
             } catch (err) {
-                console.error('Quickstart error:', err);
                 setError(err instanceof Error ? err.message : 'Quickstart failed');
             } finally {
                 setQuickstartLoading(false);
             }
         });
     };
+
 
     /** Create Game — creates the game and moves to setup */
     const handlePrepareTransaction = async () => {
@@ -418,9 +583,9 @@ export function SnakeLaddersGame({
                 setGameState(game);
                 setLoadSessionId('');
 
-                if (game.status === 'Finished') {
+                if (game.status?.tag === 'Finished') {
                     setPhase('complete');
-                } else if (game.status === 'Active') {
+                } else if (game.status?.tag === 'Active') {
                     setPhase('active');
                 } else {
                     setPhase('setup');
@@ -515,7 +680,7 @@ export function SnakeLaddersGame({
 
                         const updated = await service.getGame(sessionId);
                         setGameState(updated);
-                        if (updated?.status === 'Active') {
+                        if (updated?.status?.tag === 'Active') {
                             setPhase('active');
                             setSuccess('Game is active! Roll the dice.');
                         }
@@ -531,7 +696,7 @@ export function SnakeLaddersGame({
 
                     const updated = await service.getGame(sessionId);
                     setGameState(updated);
-                    if (updated?.status === 'Active') {
+                    if (updated?.status?.tag === 'Active') {
                         setPhase('active');
                         setSuccess('Both players committed! Game is active. Roll the dice.');
                     }
@@ -626,7 +791,7 @@ export function SnakeLaddersGame({
             const updated = await service.getGame(sessionId);
             setGameState(updated);
 
-            if (updated?.status === 'Finished') {
+            if (updated?.status?.tag === 'Finished') {
                 setPhase('complete');
                 setShowConfetti(true);
                 onGameComplete();

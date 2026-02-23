@@ -1,119 +1,147 @@
+/* WalletSwitcher — jungle theme */
+
 .wallet-switcher {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-}
-
-.wallet-info {
-  display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
+/* ---- Connect Wallet Button ---- */
+.connect-wallet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  background: var(--amber);
+  color: var(--jungle-dark);
+  border: 2px solid var(--amber-light);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+
+.connect-wallet-btn:hover {
+  background: var(--amber-light);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 10px rgba(212, 160, 23, 0.35);
+}
+
+.connect-wallet-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.connect-wallet-btn .status-indicator.connecting {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* ---- Connected State ---- */
 .wallet-status {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.8rem 0.65rem 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: var(--shadow-tight);
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem 0.4rem 0.8rem;
+  background: rgba(42, 75, 20, 0.8);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(8px);
   transition: all 0.2s ease;
 }
 
 .wallet-status:hover {
-  border-color: var(--color-ink);
+  border-color: var(--jungle-vine);
 }
 
 .wallet-status.connected {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(0, 167, 181, 0.4);
-}
-
-.wallet-status.connecting {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(253, 218, 36, 0.6);
-}
-
-.status-indicator {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: var(--color-ink-muted);
+  border-color: rgba(141, 207, 101, 0.4);
 }
 
 .wallet-status.connected .status-indicator {
-  background: var(--color-success);
-  box-shadow: 0 0 8px rgba(0, 167, 181, 0.4);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jungle-light);
+  box-shadow: 0 0 8px rgba(109, 179, 63, 0.5);
   animation: pulse 2s ease-in-out infinite;
-}
-
-.wallet-status.connecting .status-indicator {
-  background: var(--color-warning);
-  animation: pulse 1s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.wallet-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.wallet-label {
-  font-size: 0.46rem;
-  font-weight: 600;
-  color: var(--color-ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-family: var(--font-display);
+  flex-shrink: 0;
 }
 
 .wallet-address {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-ink);
+  color: var(--cream);
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
-.status-text {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-ink-muted);
+.disconnect-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef5350;
+  font-size: 1rem;
+  padding: 2px 4px;
+  opacity: 0.65;
+  transition: opacity 0.2s, transform 0.15s;
+  line-height: 1;
+}
+
+.disconnect-icon-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ---- Quickstart / Player Switcher ---- */
+.wallet-status.quickstart {
+  border-color: rgba(212, 160, 23, 0.5);
+  gap: 0.75rem;
+}
+
+.qs-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--amber-light);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  font-family: var(--font-display);
 }
 
 .switch-button {
-  margin-left: auto;
-  padding: 0.45rem 0.95rem;
-  background: var(--color-accent);
-  color: var(--color-ink);
-  border: 1px solid var(--color-ink);
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.7rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--amber);
+  color: var(--jungle-dark);
+  border: 2px solid var(--amber-light);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.65rem;
   cursor: pointer;
   transition: all 0.15s ease;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
   font-family: var(--font-body);
   flex-shrink: 0;
 }
 
 .switch-button:hover {
-  background: var(--color-ink);
-  color: var(--color-bg);
+  background: var(--amber-light);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(212, 160, 23, 0.3);
 }
 
 .switch-button:disabled {
@@ -122,46 +150,43 @@
   transform: none;
 }
 
+/* ---- Error ---- */
 .wallet-error {
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--color-error);
-  padding: 0.75rem 1rem;
+  background: rgba(192, 57, 43, 0.2);
+  color: var(--danger-light, #e74c3c);
+  padding: 0.4rem 0.7rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(200, 70, 59, 0.45);
-  box-shadow: var(--shadow-tight);
-}
-
-.error-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.25rem;
+  border: 1px solid rgba(231, 76, 60, 0.35);
+  font-size: 0.75rem;
 }
 
 .error-message {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.4;
 }
 
-/* Responsive */
+/* ---- Pulse animation ---- */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 768px) {
   .wallet-switcher {
     width: 100%;
-    align-items: stretch;
-  }
-
-  .wallet-info {
-    flex-direction: column;
   }
 
   .wallet-status {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .switch-button {
-    width: auto;
   }
 }

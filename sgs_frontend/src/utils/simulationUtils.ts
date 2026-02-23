@@ -3,11 +3,11 @@ import { DEV_ADMIN_ADDRESS, DEV_PLAYER1_ADDRESS, DEV_PLAYER2_ADDRESS, NETWORK, R
 
 async function horizonAccountExists(address: string): Promise<boolean> {
   const horizonUrl =
-    NETWORK === 'testnet'
+    NETWORK === 'TESTNET'
       ? 'https://horizon-testnet.stellar.org'
-      : NETWORK === 'mainnet'
-      ? 'https://horizon.stellar.org'
-      : null;
+      : NETWORK === 'PUBLIC'
+        ? 'https://horizon.stellar.org'
+        : null;
 
   if (!horizonUrl) return true;
 
@@ -18,7 +18,7 @@ async function horizonAccountExists(address: string): Promise<boolean> {
 }
 
 async function ensureTestnetAccountFunded(address: string): Promise<void> {
-  if (NETWORK !== 'testnet') return;
+  if (NETWORK !== 'TESTNET') return;
   if (await horizonAccountExists(address)) return;
 
   const fundRes = await fetch(`https://friendbot.stellar.org?addr=${address}`, { method: 'GET' });

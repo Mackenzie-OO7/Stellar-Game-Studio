@@ -13,8 +13,8 @@
   "dependencies": {
     "@creit-tech/stellar-wallets-kit": "npm:@jsr/creit-tech__stellar-wallets-kit@2.0.0-beta.5",
     "@noir-lang/backend_barretenberg": "^0.36.0",
-    "@noir-lang/noir_js": "^1.0.0-beta.18",
-    "@noir-lang/types": "^1.0.0-beta.18",
+    "@noir-lang/noir_js": "1.0.0-beta.9",
+    "@noir-lang/types": "1.0.0-beta.9",
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^14.4.2",
     "buffer": "^6.0.3",

@@ -1,79 +1,59 @@
-import { useEffect, useState } from 'react';
-import { config } from './config';
-import { Layout } from './components/Layout';
-import { GamesCatalog } from './components/GamesCatalog';
-import { DocsPage } from './pages/DocsPage';
-import { HomePage } from './pages/HomePage';
+import { useEffect, useState, useCallback } from 'react';
+import { LandingPage } from './pages/LandingPage';
+import { GameLayout } from './components/GameLayout';
+import { SnakeLaddersGame } from './games/snake-ladders/SnakeLaddersGame';
+import { useWallet } from './hooks/useWallet';
 import type { Page } from './types/navigation';
+import './App.css';
 
 const baseUrl = import.meta.env.BASE_URL || '/';
 const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 const rootPath = normalizedBase === '' ? '/' : `${normalizedBase}/`;
 
-const parseHashRoute = (): { page: Page; search: string } | null => {
-  if (typeof window === 'undefined') return null;
+function resolvePageFromLocation(): Page {
+  if (typeof window === 'undefined') return 'landing';
 
-  const raw = window.location.hash.replace('#', '');
-  if (!raw) return null;
-
-  const [pathPart, queryPart = ''] = raw.split('?');
-  const segment = pathPart.replace(/^\/+/, '').split('/')[0];
-
-  if (segment !== 'docs' && segment !== 'games') return null;
-
-  return {
-    page: segment as Page,
-    search: queryPart ? `?${queryPart}` : '',
-  };
-};
-
-const resolvePageFromLocation = (): Page => {
-  if (typeof window === 'undefined') return 'home';
-
-  const hashRoute = parseHashRoute();
-  if (hashRoute) return hashRoute.page;
+  const hash = window.location.hash.replace('#', '').replace(/^\/+/, '').split('/')[0];
+  if (hash === 'game') return 'game';
 
   const path = window.location.pathname;
   const relative = normalizedBase && path.startsWith(normalizedBase)
     ? path.slice(normalizedBase.length)
     : path;
   const segment = relative.replace(/^\/+/, '').split('/')[0];
+  if (segment === 'game') return 'game';
 
-  if (segment === 'docs') return 'docs';
-  if (segment === 'games') return 'games';
-  return 'home';
-};
+  return 'landing';
+}
 
-const buildPath = (page: Page) => {
-  if (page === 'home') return rootPath;
+function buildPath(page: Page) {
+  if (page === 'landing') return rootPath;
   return `${normalizedBase}/${page}`;
-};
+}
 
 function App() {
   const [page, setPage] = useState<Page>(() => resolvePageFromLocation());
-  const hasAnyContracts = Object.keys(config.contractIds).length > 0;
+  const { isConnected } = useWallet();
 
-  const navigate = (next: Page) => {
+  // Quickstart state (lifted from SnakeLaddersGame)
+  const [isQuickstart, setIsQuickstart] = useState(false);
+  const [quickstartPlayer, setQuickstartPlayer] = useState<1 | 2>(1);
+
+  const navigate = useCallback((next: Page) => {
     const target = buildPath(next);
     if (typeof window !== 'undefined' && window.location.pathname !== target) {
       window.history.pushState(null, '', target);
     }
+    // Reset quickstart when leaving game page
+    if (next !== 'game') {
+      setIsQuickstart(false);
+      setQuickstartPlayer(1);
+    }
     setPage(next);
-  };
+  }, []);
 
   useEffect(() => {
-    const hashRoute = parseHashRoute();
-    if (hashRoute) {
-      const target = `${buildPath(hashRoute.page)}${hashRoute.search}`;
-      if (`${window.location.pathname}${window.location.search}` !== target) {
-        window.history.replaceState(null, '', target);
-      }
-    }
-
-    const handleRouteChange = () => {
-      setPage(resolvePageFromLocation());
-    };
-
+    const handleRouteChange = () => setPage(resolvePageFromLocation());
     window.addEventListener('popstate', handleRouteChange);
     window.addEventListener('hashchange', handleRouteChange);
     return () => {
@@ -82,22 +62,35 @@ function App() {
     };
   }, []);
 
-  return (
-    <Layout currentPage={page} onNavigate={navigate}>
-      {!hasAnyContracts && (
-        <div className="card" style={{ marginBottom: '2rem' }}>
-          <h3>Setup Required</h3>
-          <p style={{ color: 'var(--color-ink-muted)', marginTop: '1rem' }}>
-            Contract IDs not configured. Please run <code>bun run setup</code> from the repo root
-            to deploy contracts and configure the studio frontend.
-          </p>
-        </div>
-      )}
+  // Callback for SnakeLaddersGame to update quickstart state
+  const handleQuickstartChange = useCallback((active: boolean, player: 1 | 2) => {
+    setIsQuickstart(active);
+    setQuickstartPlayer(player);
+  }, []);
 
-      {page === 'docs' && <DocsPage />}
-      {page === 'games' && <GamesCatalog onBack={() => navigate('home')} />}
-      {page === 'home' && <HomePage onNavigate={navigate} />}
-    </Layout>
+  if (page === 'game') {
+    return (
+      <GameLayout
+        onNavigateHome={() => navigate('landing')}
+        isQuickstart={isQuickstart}
+        quickstartPlayer={quickstartPlayer}
+        onPlayerSwitch={(p) => setQuickstartPlayer(p)}
+      >
+        <SnakeLaddersGame
+          onGameComplete={() => { }}
+          onStandingsRefresh={() => { }}
+          onBack={() => navigate('landing')}
+          onQuickstartChange={handleQuickstartChange}
+        />
+      </GameLayout>
+    );
+  }
+
+  return (
+    <LandingPage
+      onPlay={() => navigate('game')}
+      isWalletConnected={isConnected}
+    />
   );
 }
 

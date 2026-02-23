@@ -9,8 +9,61 @@
 .snl-game {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
   color: #e0e0e0;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+/* Scoped form overrides inside the game container */
+.snl-game input[type="text"],
+.snl-game input[type="number"],
+.snl-game textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.snl-game input:focus,
+.snl-game textarea:focus {
+  border-color: rgba(102, 187, 106, 0.6);
+  box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.12);
+}
+
+.snl-game select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.snl-game label {
+  display: block;
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.snl-game h2,
+.snl-game h3 {
+  color: #e0e0e0;
+}
+
+.snl-game p {
+  color: #bbb;
 }
 
 .snl-header {
@@ -407,6 +460,105 @@
     transform: rotate(360deg);
   }
 }
+
+/* XDR Auth Entry Styling */
+.snl-xdr-export {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.snl-xdr-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.snl-xdr-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #a5d6a7;
+  font-family: monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+  line-height: 1.4;
+  word-break: break-all;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.snl-xdr-textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.snl-xdr-subtitle {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: -0.3rem;
+  margin-bottom: 0.8rem;
+}
+
+.snl-xdr-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.snl-action-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.snl-action-btn.copy {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.snl-action-btn.copy:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.snl-action-btn.share {
+  background: #388e3c;
+  color: #fff;
+}
+
+.snl-action-btn.share:hover:not(:disabled) {
+  background: #2e7d32;
+}
+
+.snl-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.snl-xdr-textarea[readonly] {
+  cursor: pointer;
+}
+
+.snl-xdr-textarea[readonly]:hover {
+  border-color: #81c784;
+}
+
 
 /* ---------------------------------------------------------------------------
    Phase 3: Active Play
@@ -1008,6 +1160,507 @@
     transform: translateY(100vh) rotateZ(720deg);
     opacity: 0;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Header extras
+   --------------------------------------------------------------------------- */
+
+.snl-subtitle {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0.2rem 0 0;
+}
+
+.snl-header-actions {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Create Phase
+   --------------------------------------------------------------------------- */
+
+.snl-create-phase {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Mode toggle (Create / Import / Load) */
+.snl-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.snl-mode-btn {
+  flex: 1;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #999;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.snl-mode-btn:hover {
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.snl-mode-btn.active {
+  color: #fff;
+  background: rgba(46, 125, 50, 0.25);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+.snl-mode-btn.active.green {
+  background: rgba(46, 125, 50, 0.25);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+.snl-mode-btn.active.blue {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: rgba(33, 150, 243, 0.4);
+}
+
+.snl-mode-btn.active.purple {
+  background: rgba(156, 39, 176, 0.2);
+  border-color: rgba(156, 39, 176, 0.4);
+}
+
+/* Quickstart banner */
+.snl-quickstart-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 12px;
+}
+
+.snl-quickstart-info {
+  flex: 1;
+}
+
+.snl-quickstart-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffb74d;
+  margin: 0 0 0.15rem;
+}
+
+.snl-quickstart-desc {
+  font-size: 0.8rem;
+  color: #bbb;
+  margin: 0;
+}
+
+.snl-quickstart-btn {
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.25);
+}
+
+.snl-quickstart-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 152, 0, 0.35);
+}
+
+.snl-quickstart-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Form sections */
+.snl-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.snl-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.snl-form-submit {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.snl-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.snl-label {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 600;
+}
+
+.snl-field-hint {
+  font-size: 0.78rem;
+  color: #777;
+  margin: 0;
+}
+
+/* Option cards (game mode, snake count, avatar) */
+.snl-option-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.snl-option-card {
+  flex: 1;
+  padding: 0.8rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #bbb;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.snl-option-card:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ddd;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.snl-option-card.active {
+  background: rgba(46, 125, 50, 0.2);
+  border-color: rgba(46, 125, 50, 0.5);
+  color: #66bb6a;
+}
+
+.snl-option-card.compact {
+  padding: 0.55rem 0.6rem;
+}
+
+.snl-option-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.snl-option-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.snl-option-hint {
+  font-size: 0.72rem;
+  color: #888;
+  margin-top: 0.2rem;
+  font-weight: 400;
+}
+
+/* Submit button extensions */
+.snl-submit-btn {
+  width: 100%;
+}
+
+.snl-submit-btn.purple {
+  background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
+  box-shadow: 0 4px 15px rgba(123, 31, 162, 0.3);
+}
+
+.snl-submit-btn.purple:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(123, 31, 162, 0.4);
+}
+
+.snl-roll-btn {
+  width: 100%;
+}
+
+/* Info cards (import / load modes) */
+.snl-info-card {
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.snl-info-card.blue {
+  background: rgba(33, 150, 243, 0.08);
+  border-color: rgba(33, 150, 243, 0.25);
+}
+
+.snl-info-card.amber {
+  background: rgba(255, 152, 0, 0.08);
+  border-color: rgba(255, 152, 0, 0.25);
+}
+
+.snl-info-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e0e0e0;
+  margin: 0 0 0.4rem;
+}
+
+.snl-info-desc {
+  font-size: 0.82rem;
+  color: #aaa;
+  margin: 0 0 0.6rem;
+  line-height: 1.4;
+}
+
+.snl-hint-box {
+  font-size: 0.78rem;
+  color: #888;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+/* Waiting icon (setup phase) */
+.snl-waiting-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Turn bar (active phase)
+   --------------------------------------------------------------------------- */
+
+.snl-turn-bar {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  transition: all 0.3s;
+}
+
+.snl-turn-bar.my-turn {
+  background: rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(46, 125, 50, 0.4);
+  color: #66bb6a;
+}
+
+.snl-turn-bar.opponent-turn {
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  color: #ffb74d;
+}
+
+/* ---------------------------------------------------------------------------
+   Scoreboard extras
+   --------------------------------------------------------------------------- */
+
+.snl-scoreboard-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem;
+}
+
+.snl-score-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.snl-score-row+.snl-score-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.snl-score-row.active {
+  background: rgba(46, 125, 50, 0.15);
+  border: 1px solid rgba(46, 125, 50, 0.25);
+}
+
+.snl-score-avatar {
+  font-size: 1.1rem;
+}
+
+.snl-score-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.snl-score-tile {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #999;
+}
+
+/* ---------------------------------------------------------------------------
+   Proof panel extras
+   --------------------------------------------------------------------------- */
+
+.snl-proof-toggle {
+  width: 100%;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: none;
+  color: #888;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.snl-proof-toggle:hover {
+  border-color: #555;
+  color: #bbb;
+}
+
+.snl-proof-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.snl-proof-label {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+}
+
+.snl-proof-hash-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.snl-proof-hash {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #66bb6a;
+  word-break: break-all;
+  flex: 1;
+}
+
+.snl-proof-copy {
+  flex-shrink: 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  background: rgba(46, 125, 50, 0.15);
+  border: 1px solid rgba(46, 125, 50, 0.3);
+  border-radius: 4px;
+  color: #66bb6a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.snl-proof-copy:hover {
+  background: rgba(46, 125, 50, 0.25);
+}
+
+.snl-proof-verified {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #66bb6a;
+  margin: 0;
+}
+
+.snl-proof-empty {
+  font-size: 0.78rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Winner banner extras
+   --------------------------------------------------------------------------- */
+
+.snl-winner-title {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #ffd54f, #ffab00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.snl-winner-sub {
+  color: #888;
+  font-size: 0.85rem;
+  font-family: monospace;
+  margin: 0;
+}
+
+/* Stats card (complete phase) */
+.snl-stats-card {
+  display: inline-block;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.snl-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.snl-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.snl-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #66bb6a;
+}
+
+.snl-stat-value.green {
+  color: #66bb6a;
+}
+
+.snl-stat-value.red {
+  color: #ef5350;
+}
+
+.snl-stat-value.blue {
+  color: #42a5f5;
+}
+
+.snl-stat-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ---------------------------------------------------------------------------

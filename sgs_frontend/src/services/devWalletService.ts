@@ -16,21 +16,16 @@ class DevWalletService {
    * Check if dev mode is available
    */
   static isDevModeAvailable(): boolean {
-    // Dev mode is available if we have the secret keys in environment
-    return !!(
-      import.meta.env.VITE_DEV_PLAYER1_SECRET &&
-      import.meta.env.VITE_DEV_PLAYER2_SECRET
-    );
+    // Dev mode is always available now since we dynamically generate embedded wallets
+    return true;
   }
 
   /**
    * Check if a specific player is available
    */
   static isPlayerAvailable(playerNumber: 1 | 2): boolean {
-    const secret = playerNumber === 1
-      ? import.meta.env.VITE_DEV_PLAYER1_SECRET
-      : import.meta.env.VITE_DEV_PLAYER2_SECRET;
-    return !!secret && secret !== 'NOT_AVAILABLE';
+    // Player is always available because we auto-generate them
+    return true;
   }
 
   /**
@@ -39,16 +34,70 @@ class DevWalletService {
   async initPlayer(playerNumber: 1 | 2): Promise<void> {
     try {
       const playerKey = `player${playerNumber}`;
-      const secretEnvVar = playerNumber === 1
-        ? import.meta.env.VITE_DEV_PLAYER1_SECRET
-        : import.meta.env.VITE_DEV_PLAYER2_SECRET;
+      const localStoreKey = `sgs_dev_player${playerNumber}_secret`;
 
-      if (!secretEnvVar || secretEnvVar === 'NOT_AVAILABLE') {
-        throw new Error(`Player ${playerNumber} secret key not available. Run "bun run setup" first.`);
+      // 1. Try to load from localStorage (embedded wallet)
+      let secretEnvVar = localStorage.getItem(localStoreKey);
+
+      // 2. Fallback to .env (for backwards compatibility with existing setups)
+      if (!secretEnvVar) {
+        const envFallback = playerNumber === 1
+          ? import.meta.env.VITE_DEV_PLAYER1_SECRET
+          : import.meta.env.VITE_DEV_PLAYER2_SECRET;
+
+        if (envFallback && envFallback !== 'NOT_AVAILABLE') {
+          secretEnvVar = envFallback as string;
+          localStorage.setItem(localStoreKey, secretEnvVar);
+        }
+      }
+
+      // 3. If STILL no secret exists, generate a brand new one dynamically!
+      // This fulfills the requirement that new players get instant embedded funded testnet wallets.
+      if (!secretEnvVar) {
+        console.log(`Generating a new Keypair for embedded Player ${playerNumber}...`);
+        const newKp = Keypair.random();
+        secretEnvVar = newKp.secret();
+        localStorage.setItem(localStoreKey, secretEnvVar);
       }
 
       // Create keypair from secret key
-      const keypair = Keypair.fromSecret(secretEnvVar);
+      const keypair = Keypair.fromSecret(secretEnvVar as string);
+
+      // Auto-fund on testnet if the account does not exist
+      try {
+        let accountExists = false;
+        try {
+          const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${keypair.publicKey()}`);
+          if (res.ok) accountExists = true;
+        } catch (e) { /* ignore */ }
+
+        if (!accountExists) {
+          console.log(`Funding Dev Wallet Player ${playerNumber} via Friendbot...`);
+          const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${keypair.publicKey()}`);
+          if (!fbRes.ok) {
+            console.warn(`Friendbot returned ${fbRes.status}. Retrying in 2s...`);
+            await new Promise(r => setTimeout(r, 2000));
+            await fetch(`https://friendbot.stellar.org/?addr=${keypair.publicKey()}`);
+          }
+
+          // Wait and verify account exists
+          for (let i = 0; i < 3; i++) {
+            await new Promise(r => setTimeout(r, 2000));
+            const checkRes = await fetch(`https://horizon-testnet.stellar.org/accounts/${keypair.publicKey()}`);
+            if (checkRes.ok) {
+              console.log(`Player ${playerNumber} funded successfully and verified on Horizon.`);
+              accountExists = true;
+              break;
+            }
+          }
+          if (!accountExists) {
+            throw new Error(`Friendbot failed to aggressively fund Player ${playerNumber}. Testnet may be congested.`);
+          }
+        }
+      } catch (err) {
+        console.warn(`Could not verify funding for Player ${playerNumber}:`, err);
+      }
+
       this.keypairs[playerKey] = keypair;
       this.currentPlayer = playerNumber;
 
@@ -165,6 +214,97 @@ class DevWalletService {
         }
       },
     };
+  }
+
+  /**
+   * Get public key for specific player
+   */
+  async getPublicKeyFor(playerNumber: 1 | 2): Promise<string> {
+    const playerKey = `player${playerNumber}`;
+    if (!this.keypairs[playerKey]) {
+      await this.initPlayer(playerNumber);
+    }
+    return this.keypairs[playerKey].publicKey();
+  }
+
+  /**
+   * Get a signer for a specific player (used in Quickstart mode)
+   */
+  async getSignerFor(playerNumber: 1 | 2): Promise<ContractSigner> {
+    const playerKey = `player${playerNumber}`;
+    if (!this.keypairs[playerKey]) {
+      await this.initPlayer(playerNumber);
+    }
+
+    const keypair = this.keypairs[playerKey];
+    const publicKey = keypair.publicKey();
+    const toWalletError = (message: string): WalletError => ({ message, code: -1 });
+
+    return {
+      signTransaction: async (txXdr: string, opts?: any) => {
+        try {
+          if (!opts?.networkPassphrase) {
+            throw new Error('Missing networkPassphrase');
+          }
+
+          const transaction = TransactionBuilder.fromXDR(txXdr, opts.networkPassphrase);
+          transaction.sign(keypair);
+
+          return {
+            signedTxXdr: transaction.toXDR(),
+            signerAddress: publicKey,
+          };
+        } catch (error) {
+          console.error(`Failed to sign transaction for player ${playerNumber}:`, error);
+          return {
+            signedTxXdr: txXdr,
+            signerAddress: publicKey,
+            error: toWalletError(
+              error instanceof Error ? error.message : 'Failed to sign transaction'
+            ),
+          };
+        }
+      },
+
+      signAuthEntry: async (preimageXdr: string, opts?: any) => {
+        try {
+          const preimageBytes = Buffer.from(preimageXdr, 'base64');
+          const payload = hash(preimageBytes);
+          const signatureBytes = keypair.sign(payload);
+
+          return {
+            signedAuthEntry: Buffer.from(signatureBytes).toString('base64'),
+            signerAddress: publicKey,
+          };
+        } catch (error) {
+          console.error(`Failed to sign auth entry for player ${playerNumber}:`, error);
+          return {
+            signedAuthEntry: preimageXdr,
+            signerAddress: publicKey,
+            error: toWalletError(
+              error instanceof Error ? error.message : 'Failed to sign auth entry'
+            ),
+          };
+        }
+      },
+    };
+  }
+
+  /**
+   * Sign transaction for specific player
+   */
+  async signTransactionFor(txXdr: string, playerNumber: 1 | 2, networkPassphrase?: string): Promise<string> {
+    const playerKey = `player${playerNumber}`;
+    if (!this.keypairs[playerKey]) {
+      await this.initPlayer(playerNumber);
+    }
+
+    const keypair = this.keypairs[playerKey];
+    const passphrase = networkPassphrase || import.meta.env.VITE_STELLAR_NETWORK_PASSPHRASE || 'Test SDF Network ; September 2015';
+
+    const transaction = TransactionBuilder.fromXDR(txXdr, passphrase);
+    transaction.sign(keypair);
+    return transaction.toXDR();
   }
 }
 

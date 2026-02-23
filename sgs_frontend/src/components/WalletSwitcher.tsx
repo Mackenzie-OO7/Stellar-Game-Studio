@@ -1,8 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
+// import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit';
+// import { Networks } from '@creit-tech/stellar-wallets-kit/types';
+// import { FreighterModule } from '@creit-tech/stellar-wallets-kit/modules/freighter';
+// import { AlbedoModule } from '@creit-tech/stellar-wallets-kit/modules/albedo';
+// import { xBullModule } from '@creit-tech/stellar-wallets-kit/modules/xbull';
 import { useWallet } from '../hooks/useWallet';
 import './WalletSwitcher.css';
 
-export function WalletSwitcher() {
+interface WalletSwitcherProps {
+  /** When true, shows "Switch to Player X" instead of the wallet widget */
+  isQuickstart?: boolean;
+  /** Current dev player number in quickstart mode */
+  quickstartPlayer?: 1 | 2;
+  /** Callback when player is switched in quickstart mode */
+  onPlayerSwitch?: (player: 1 | 2) => void;
+}
+
+export function WalletSwitcher({ isQuickstart, quickstartPlayer, onPlayerSwitch }: WalletSwitcherProps) {
   const {
     publicKey,
     isConnected,
@@ -11,78 +25,43 @@ export function WalletSwitcher() {
     error,
     connectDev,
     switchPlayer,
+    disconnect,
     getCurrentDevPlayer,
+    setWallet,
+    setNetwork,
+    setError,
   } = useWallet();
 
+  const [connecting, setConnecting] = useState(false);
   const currentPlayer = getCurrentDevPlayer();
-  const hasAttemptedConnection = useRef(false);
 
-  // Auto-connect to Player 1 on mount (only try once)
-  useEffect(() => {
-    if (!isConnected && !isConnecting && !hasAttemptedConnection.current) {
-      hasAttemptedConnection.current = true;
-      connectDev(1).catch(console.error);
-    }
-  }, [isConnected, isConnecting, connectDev]);
+  // --- Always show player switcher for Dev Wallet Mode ---
+  const displayPlayer = quickstartPlayer ?? currentPlayer ?? 1;
+  const nextPlayer = displayPlayer === 1 ? 2 : 1;
 
   const handleSwitch = async () => {
-    if (walletType !== 'dev') return;
-
-    const nextPlayer = currentPlayer === 1 ? 2 : 1;
     try {
-      await switchPlayer(nextPlayer);
+      setConnecting(true);
+      await connectDev(nextPlayer);
+      onPlayerSwitch?.(nextPlayer);
     } catch (err) {
       console.error('Failed to switch player:', err);
+    } finally {
+      setConnecting(false);
     }
   };
 
-  if (!isConnected) {
-    return (
-      <div className="wallet-switcher">
-        {error ? (
-          <div className="wallet-error">
-            <div className="error-title">Connection Failed</div>
-            <div className="error-message">{error}</div>
-          </div>
-        ) : (
-          <div className="wallet-status connecting">
-            <span className="status-indicator"></span>
-            <span className="status-text">Connecting...</span>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="wallet-switcher">
-      {error && (
-        <div className="wallet-error">
-          {error}
-        </div>
-      )}
-
-      <div className="wallet-info">
-        <div className="wallet-status connected">
-          <span className="status-indicator"></span>
-          <div className="wallet-details">
-            <div className="wallet-label">
-              Connected Player {currentPlayer}
-            </div>
-            <div className="wallet-address">
-              {publicKey ? `${publicKey.slice(0, 8)}...${publicKey.slice(-4)}` : ''}
-            </div>
-          </div>
-          {walletType === 'dev' && (
-            <button
-              onClick={handleSwitch}
-              className="switch-button"
-              disabled={isConnecting}
-            >
-              Switch to Player {currentPlayer === 1 ? 2 : 1}
-            </button>
-          )}
-        </div>
+      <div className="wallet-status quickstart">
+        <span className="qs-label">Player {displayPlayer}</span>
+        <button
+          onClick={handleSwitch}
+          className="switch-button"
+          disabled={connecting || isConnecting}
+        >
+          {connecting || isConnecting ? 'Switching...' : `Switch to Player ${nextPlayer}`}
+        </button>
       </div>
     </div>
   );

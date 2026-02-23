@@ -14,7 +14,8 @@ export const NETWORK_PASSPHRASE =
   runtimeConfig?.networkPassphrase ||
   import.meta.env.VITE_NETWORK_PASSPHRASE ||
   'Test SDF Network ; September 2015';
-export const NETWORK = SOROBAN_RPC_URL.includes('testnet') ? 'testnet' : 'mainnet';
+// Freighter and StellarWalletsKit require uppercase network names
+export const NETWORK = SOROBAN_RPC_URL.includes('testnet') ? 'TESTNET' : 'PUBLIC';
 
 function contractEnvKey(crateName: string): string {
   // Crate name -> env key matches scripts/utils/contracts.ts: hyphens become underscores.
@@ -54,11 +55,10 @@ export function getAllContractIds(): Record<string, string> {
   return out;
 }
 
-// Contract IDs (backwards-compatible named exports for built-in games)
+// Contract IDs
 export const MOCK_GAME_HUB_CONTRACT = getContractId('mock-game-hub');
-export const TWENTY_ONE_CONTRACT = getContractId('twenty-one');
-export const NUMBER_GUESS_CONTRACT = getContractId('number-guess');
-export const DICE_DUEL_CONTRACT = getContractId('dice-duel');
+export const SNAKE_LADDERS_CONTRACT = getContractId('snake-ladders');
+export const ZK_VERIFIER_CONTRACT = getContractId('zk-verifier');
 
 // Dev wallet addresses
 export const DEV_ADMIN_ADDRESS = import.meta.env.VITE_DEV_ADMIN_ADDRESS || '';

@@ -1,23 +1,46 @@
-import { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWalletStore } from '../store/walletSlice';
 import { devWalletService, DevWalletService } from '../services/devWalletService';
 import { NETWORK, NETWORK_PASSPHRASE } from '../utils/constants';
 import type { ContractSigner } from '../types/signer';
+// import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit';
 
 export function useWallet() {
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pre-initialize dev wallets on load
+  useEffect(() => {
+    const initDevWallets = async () => {
+      if (!useWalletStore.getState().isConnected && DevWalletService.isDevModeAvailable()) {
+        try {
+          // Pre-generate/load both players so they exist in memory/localstorage
+          await devWalletService.initPlayer(1);
+          await devWalletService.initPlayer(2);
+          // Default to player 1
+          await devWalletService.initPlayer(1);
+          useWalletStore.getState().setWallet(
+            devWalletService.getPublicKey(),
+            'dev_player_1',
+            'dev'
+          );
+        } catch (err) {
+          console.error("Failed to pre-initialize dev wallets:", err);
+        }
+      }
+    };
+    initDevWallets();
+  }, []);
+
   const {
     publicKey,
     walletId,
     walletType,
     isConnected,
-    isConnecting,
     network,
     networkPassphrase,
-    error,
     setWallet,
-    setConnecting,
     setNetwork,
-    setError,
     disconnect: storeDisconnect,
   } = useWalletStore();
 
@@ -26,9 +49,9 @@ export function useWallet() {
    * DEV MODE ONLY - Not used in production
    */
   const connectDev = useCallback(
-    async (playerNumber: 1 | 2) => {
+    async (playerNumber: 1 | 2 = 1) => {
       try {
-        setConnecting(true);
+        setIsConnecting(true);
         setError(null);
 
         await devWalletService.initPlayer(playerNumber);
@@ -43,10 +66,10 @@ export function useWallet() {
         console.error('Dev wallet connection error:', err);
         throw err;
       } finally {
-        setConnecting(false);
+        setIsConnecting(false);
       }
     },
-    [setWallet, setConnecting, setNetwork, setError]
+    [setWallet, setError, setNetwork]
   );
 
   /**
@@ -60,7 +83,7 @@ export function useWallet() {
       }
 
       try {
-        setConnecting(true);
+        setIsConnecting(true);
         setError(null);
 
         await devWalletService.switchPlayer(playerNumber);
@@ -74,10 +97,10 @@ export function useWallet() {
         console.error('Player switch error:', err);
         throw err;
       } finally {
-        setConnecting(false);
+        setIsConnecting(false);
       }
     },
-    [walletType, setWallet, setConnecting, setError]
+    [walletType, setWallet, setIsConnecting, setError]
   );
 
   /**
@@ -103,8 +126,28 @@ export function useWallet() {
       // Dev wallet uses the dev wallet service's signer
       return devWalletService.getSigner();
     } else {
-      // For real wallet integration, implement Freighter or other wallet signing here
-      throw new Error('Real wallet signing not yet implemented. Use dev wallet for now.');
+      // Real wallet signing
+      throw new Error('External wallet integration is currently disabled. Please use the embedded Developer Wallet.');
+      // return {
+      //   signTransaction: async (tx: string) => {
+      //     const kit = (window as any).stellarWalletsKit;
+      //     if (!kit) throw new Error('Wallet kit not initialized');
+      //     const { signedTx } = await kit.signTransaction(tx, {
+      //       network: NETWORK,
+      //       networkPassphrase: NETWORK_PASSPHRASE,
+      //     });
+      //     return signedTx;
+      //   },
+      //   signAuthEntry: async (entryXdr: string) => {
+      //     const kit = (window as any).stellarWalletsKit;
+      //     if (!kit) throw new Error('Wallet kit not initialized');
+      //     const { signedAuthEntry } = await kit.signAuthEntry(entryXdr, {
+      //       network: NETWORK,
+      //       networkPassphrase: NETWORK_PASSPHRASE,
+      //     });
+      //     return signedAuthEntry;
+      //   }
+      // };
     }
   }, [isConnected, publicKey, walletType]);
 
@@ -151,5 +194,10 @@ export function useWallet() {
     isDevModeAvailable,
     isDevPlayerAvailable,
     getCurrentDevPlayer,
+
+    // Exposed Setters for ConnectWallet component
+    setWallet,
+    setNetwork,
+    setError,
   };
 }
